@@ -807,3 +807,5 @@ func getBirthdayMsg(peoples Employee, list, url string) string {
 	msg := fmt.Sprintf("%v %v из %v! %v %v, %v и %v!", text1, peoples.Name, peoples.Department, text2, text3, text4, text5)
 	return msg
 }
+
+// Comment
