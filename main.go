@@ -309,7 +309,7 @@ func main() {
 					}
 
 				} else {
-					//ЕСЛИ ПАРОЛЬ НЕВЕРНЫЙ
+					//ЕСЛИ ПАРОЛЬ НЕВЕРНЫЙ ТО
 					bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Неверный пароль, попробуйте снова"))
 				}
 			} else {
