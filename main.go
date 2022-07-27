@@ -323,7 +323,7 @@ func main() {
 			rows, _ := database.Query("SELECT username FROM people")
 			var followers string
 
-			//ПРОВЕРЯЕМ ВСЕ ДАННЫЕ В ТАБЛИЦЕ
+			//ПРОВЕРЯЕМ ВСЕ ДАННЫЕ В БАЗЕ ИМЁН
 			for rows.Next() {
 				rows.Scan(&followers)
 
