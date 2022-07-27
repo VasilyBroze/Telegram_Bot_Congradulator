@@ -319,7 +319,7 @@ func main() {
 		case "ПОДПИСЧИКИ":
 			msg := ""
 			var sum int
-
+			//ЗАПРАШИВАЕМ ИЗ БД ВСЕ ИМЕНА
 			rows, _ := database.Query("SELECT username FROM people")
 			var followers string
 
