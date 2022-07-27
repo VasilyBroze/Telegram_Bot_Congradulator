@@ -94,7 +94,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	bot.Debug = true
+	bot.Debug = false
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
@@ -113,7 +113,7 @@ func main() {
 			//АНОНС ТОЛЬКО В ПЕРИОД 10-11
 			currentTime := time.Now()
 
-			if currentTime.Hour() == 14 {
+			if currentTime.Hour() == 11 {
 				//ПОЛУЧАЕМ СПИСОК ЛЮДЕЙ У КОГО ДР ЗАВТРА
 				birthdayTomorrow := getAnonceBirthdayJson(BotSets.Google_sheet_bday_list, BotSets.Google_sheet_bday_url)
 				//ЕСЛИ ЛЮДЕЙ У КОТОРЫЙ ДР ЗАВТРА ХОТЯБЫ 1 ДЕЛАЕМ РАССЫЛКУ
@@ -149,7 +149,7 @@ func main() {
 									msg := fmt.Sprintf("Завтра день рождения у %s из %s!\nПодарок собирает %s.\nПринимает переводы по номеру %v\nhttps://web3.online.sberbank.ru/transfers/client", nameR, departmentR, myDonator.Name, myDonator.Telephone)
 									bot.Send(tgbotapi.NewMessage(follower.ChatID, msg))
 								} else {
-									msg := fmt.Sprintf("Завтра день рождения у %s!\nПодарок собирает %s.\nПринимает переводы по номеру %v\nhttps://web3.online.sberbank.ru/transfers/client", nameR, departmentR, myDonator.Name, myDonator.Telephone)
+									msg := fmt.Sprintf("Завтра день рождения у %s!\nПодарок собирает %s.\nПринимает переводы по номеру %v\nhttps://web3.online.sberbank.ru/transfers/client", nameR, myDonator.Name, myDonator.Telephone)
 									bot.Send(tgbotapi.NewMessage(follower.ChatID, msg))
 								}
 							}
@@ -434,7 +434,7 @@ func getBirthdayJson(list, url string) []Employee {
 
 	//В ЦИКЛЕ ПО ВСЕМ ЛЮДЯМ ИЩЕМ ТЕХ У КОГО ДЕНЬ РОЖДЕНИЯ И ДОБАВЛЯЕМ ИХ В НОВУЮ СТРУКТУРУ
 	for _, empl := range employes {
-		if strings.HasPrefix(empl.Date, strDate) && strings.HasPrefix(empl.Company, "Е") == false {
+		if strings.HasPrefix(empl.Date, strDate) && (strings.HasPrefix(empl.Company, "ЛИИС") || strings.HasPrefix(empl.Company, "Симпл")) {
 			shortName := strings.Split(empl.Name, " ")
 			//ЕСЛИ ФИО ИЗ 3 СЛОВ - ОПРЕДЕЛЯЕМ ПОЛ ПО ОТЧЕСТВУ, УБИРАЕМ ОТЧЕСТВО
 			if len(shortName) == 3 {
@@ -528,7 +528,7 @@ func getAnonceBirthdayJson(list, url string) []Employee {
 
 	//В ЦИКЛЕ ПО ВСЕМ ЛЮДЯМ ИЩЕМ ТЕХ У КОГО ЗАВТРА ДЕНЬ РОЖДЕНИЯ И ДОБАВЛЯЕМ ИХ В НОВУЮ СТРУКТУРУ
 	for _, empl := range employes {
-		if strings.HasPrefix(empl.Date, strDate) {
+		if strings.HasPrefix(empl.Date, strDate) && (strings.HasPrefix(empl.Company, "ЛИИС") || strings.HasPrefix(empl.Company, "Симпл")) {
 			shortName := strings.Split(empl.Name, " ")
 			//ЕСЛИ ФИО ИЗ 3 СЛОВ - ОПРЕДЕЛЯЕМ ПОЛ ПО ОТЧЕСТВУ, УБИРАЕМ ОТЧЕСТВО
 			if len(shortName) == 3 {
