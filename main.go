@@ -91,10 +91,14 @@ func main() {
 						for _, follower := range u {
 							if peoples.Name != follower.Name {
 								if departmentR != "" {
-									msg := fmt.Sprintf("Завтра день рождения у %s из %s!\nПодарок собирает %s.\nПринимает переводы по номеру %v\nЕсли захочешь поучаствовать - Укажи комментарий, для кого подарок :)\nhttps://web3.online.sberbank.ru/transfers/client", nameR, departmentR, myDonator.Name, myDonator.Telephone)
+									msg := fmt.Sprintf("Завтра день рождения у %s из %s!\nПодарок собирает %s."+
+										"\nПринимает переводы по номеру %v\nЕсли захочешь поучаствовать - Укажи комментарий, для кого подарок :)"+
+										"\nhttps://web3.online.sberbank.ru/transfers/client", nameR, departmentR, myDonator.Name, myDonator.Telephone)
 									bot.Send(tgbotapi.NewMessage(follower.ChatID, msg))
 								} else {
-									msg := fmt.Sprintf("Завтра день рождения у %s!\nПодарок собирает %s.\nПринимает переводы по номеру %v\nЕсли захочешь поучаствовать - Укажи комментарий, для кого подарок :)\nhttps://web3.online.sberbank.ru/transfers/client", nameR, myDonator.Name, myDonator.Telephone)
+									msg := fmt.Sprintf("Завтра день рождения у %s!\nПодарок собирает %s."+
+										"\nПринимает переводы по номеру %v\nЕсли захочешь поучаствовать - Укажи комментарий, для кого подарок :)"+
+										"\nhttps://web3.online.sberbank.ru/transfers/client", nameR, myDonator.Name, myDonator.Telephone)
 									bot.Send(tgbotapi.NewMessage(follower.ChatID, msg))
 								}
 							}
@@ -157,7 +161,7 @@ func main() {
 				}
 			}
 
-		case "УДАЛИТЬСЯ": //УДАЛИТЬСЯ ИЗ БД
+		case "УДАЛИТЬСЯ", "/УДАЛИТЬСЯ": //УДАЛИТЬСЯ ИЗ БД
 
 			//СЧИТЫВАНИЕ ИЗ БАЗЫ
 			data1, _ := database.Query("SELECT chat_id FROM people WHERE chat_id = ?", update.Message.Chat.ID)
@@ -182,7 +186,7 @@ func main() {
 				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Вы удалены из рассылки :("))
 			}
 
-		case "СТАТУС":
+		case "СТАТУС", "/СТАТУС":
 
 			//СЧИТЫВАНИЕ ИЗ БАЗЫ
 			data1, _ := database.Query("SELECT chat_id, username FROM people WHERE chat_id = ?", update.Message.Chat.ID)
@@ -200,11 +204,12 @@ func main() {
 			}
 
 		case "/DESCRIPTION", "ОПИСАНИЕ":
-			msg := fmt.Sprintf("Описание комманд:\nРегистация Имя Фамилия - зарегистрироваться или обновить данные\nУдалиться - удалиться из рассылок\nСтатус - ваше имя в рассылке\nПодписчики - список подписавшихся")
+			msg := fmt.Sprintf("Описание комманд:\nРегистация Имя Фамилия - зарегистрироваться или обновить данные" +
+				"\nУдалиться - удалиться из рассылок\nСтатус - ваше имя в рассылке\nПодписчики - список подписавшихся")
 			bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
 
 		case "/START":
-			msg := fmt.Sprintf("Привет! Я помогу тебе поздравлять твоих коллег без миллионов надоедливых чатов :-)\n" +
+			msg := fmt.Sprintf("Привет! Я помогу тебе поздравлять твоих коллег без десятков надоедливых чатов :)\n" +
 				"Для начала, зарегистрируйся. Примерно так: \nРегистрация Иван Иванов (сначала имя, потом фамилия)\n" +
 				"Чтобы узнать что я умею введи Описание\n" +
 				"Хорошего тебе дня!")
@@ -261,7 +266,7 @@ func main() {
 				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Неверная команда, Введите ОБЪЯВЛЕНИЕКРОМЕ (Пароль) Имя Текст"))
 			}
 
-		case "ПОДПИСЧИКИ": //ВЫВОДИТ СПИСОК ВСЕХ ПОДПИСАВШИХСЯ
+		case "ПОДПИСЧИКИ", "/ПОДПИСЧИКИ": //ВЫВОДИТ СПИСОК ВСЕХ ПОДПИСАВШИХСЯ
 			msg := ""
 			var sum int
 			//ЗАПРАШИВАЕМ ИЗ БД ВСЕ ИМЕНА
@@ -316,5 +321,4 @@ func main() {
 			}
 		}()
 	*/
-
 }
