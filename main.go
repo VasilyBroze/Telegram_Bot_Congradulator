@@ -9,6 +9,8 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -205,7 +207,8 @@ func main() {
 
 		case "/DESCRIPTION", "ОПИСАНИЕ":
 			msg := fmt.Sprintf("Описание комманд:\nРегистация Имя Фамилия - зарегистрироваться или обновить данные" +
-				"\nУдалиться - удалиться из рассылок\nСтатус - ваше имя в рассылке\nПодписчики - список подписавшихся")
+				"\nУдалиться - удалиться из рассылок\nСтатус - ваше имя в рассылке\nПодписчики - список подписавшихся" +
+				"\nСписокдр август - покажу у кого ДР в этом месяце. Если месяц не указан - покажу текущий месяц")
 			bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
 
 		case "/START":
@@ -288,6 +291,69 @@ func main() {
 			//ВЫВОД В ЧАТ
 			bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
 
+		case "/BIRTHDAYLIST", "СПИСОКДР":
+			if len(command) < 3 { //ЕСЛИ ПОЛЬЗОВАТЕЛЬ НЕ УКАЗАЛ МЕСЯЦ
+
+				var month, msg string
+
+				if len(command) == 1 { //ЕСЛИ ПОЛЬЗОВАТЕЛЬ НЕ ВВЕЛ МЕСЯЦ
+					//КОНВЕРТИРУЕМ ТЕКУЩИЙ МЕСЯЦ В СТРИНГ И ПЕРЕДАЕМ В ФУНКЦИЮ
+					month = strconv.Itoa(int(time.Now().Month()))
+					switch int((time.Now().Month())) {
+					case 1:
+						msg += "Январь"
+					case 2:
+						msg += "Февраль"
+					case 3:
+						msg += "Март"
+					case 4:
+						msg += "Апрель"
+					case 5:
+						msg += "Май"
+					case 6:
+						msg += "Июнь"
+					case 7:
+						msg += "Июль"
+					case 8:
+						msg += "Август"
+					case 9:
+						msg += "Сентябрь"
+					case 10:
+						msg += "Октябрь"
+					case 11:
+						msg += "Ноябрь"
+					case 12:
+						msg += "Декабрь"
+					}
+				} else { //ЕСЛИ УКАЗАЛ МЕСЯЦ - ПЕРЕДАЕМ В ФУНКЦИЮ ВВОД, А СООБЩЕНИЕ НАЧИНАЕМ С ЕГО ВВОДА
+					month = command[1]
+					msg += command[1]
+				}
+
+				//ПОЛУЧАЕМ МАССИВ ЛЮДЕЙ С ДР В УКАЗАННОМ МЕСЯЦЕ
+				birthdayList := helpers.GetBirthdayMonthListJson(BotSets.Google_sheet_bday_list, BotSets.Google_sheet_bday_url, month)
+
+				//СОРТИРУЕМ ПО ДНЮ РОЖДЕНИЯ
+				sort.Slice(birthdayList, func(i, j int) (less bool) {
+					return birthdayList[i].Date < birthdayList[j].Date
+				})
+
+				//ИТЕРИРУЕМСЯ ПО ЛЮДЯМ У КОТОРЫХ ДР В ТЕКУЩЕМ МЕСЯЦЕ
+				for _, peoples := range birthdayList {
+					msg += fmt.Sprintf("\n%v - %v - %v", peoples.Date, peoples.Name, peoples.Department)
+				}
+
+				//ЕСЛИ НИКОГО НЕ ДОБАВИЛИ В СООБЩЕНИЕ - ВЫВОДИМ ОШИБКУ
+				if msg == command[1] {
+					bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Ни у кого нет ДР в этом месяце, вы точно не ошиблись?"))
+				} else {
+					//ВЫВОД В ЧАТ СООБЩЕНИЕ
+					bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
+				}
+			} else {
+				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Не понял вас :( Введите команду вида - Списокдр Январь"))
+			}
+
 		default:
 			bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Команда не найдена, посмотрите Описание"))
 		}
@@ -300,7 +366,7 @@ func main() {
 	/*
 		go func() {
 			for {
-				//ПОЗДРАВЛЕНИЕ ТОЛЬКО В ПЕРИОД 10-11
+				//ПОЗДРАВЛЕНИЕ  ТОЛЬКО В ПЕРИОД 10-11
 				currentTime := time.Now()
 
 				if currentTime.Hour() == 9 {

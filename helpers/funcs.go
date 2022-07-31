@@ -441,6 +441,96 @@ func GetBirthdayJson(list, url string) []entity.Employee {
 	return employesBirthday
 }
 
+//ПАРСИМ ЛЮДЕЙ У КОТОРЫХ ЗАВТРА ДЕНЬ РОЖДЕНИЯ, ОПРЕДЕЛЯЕМ ПОЛ
+func GetBirthdayMonthListJson(list, url, month string) []entity.Employee {
+	resp, _ := http.Get(fmt.Sprintf("https://tools.aimylogic.com/api/googlesheet2json?sheet=%v&id=%v", list, url))
+	defer resp.Body.Close()
+
+	employes := []entity.Employee{}
+
+	err := json.NewDecoder(resp.Body).Decode(&employes)
+	if err != nil {
+		fmt.Println(err, " body, err")
+	}
+	//СТРУКТУРА ЛЮДЕЙ С ДНЁМ РОЖДЕНИЯ В КОНКРЕТНОМ МЕСЯЦЕ
+	employesBirthday := []entity.Employee{}
+
+	var strMonth string
+
+	//УКОРАЧИВАЕМ МЕСЯЦ ДО 3х БУКВ ЕСЛИ ОН ДЛИННЕЕ
+	if len(month) >= 3 {
+		month = month[0:3]
+	}
+	//КОНВЕРТАЦИЯ МЕСЯЦА
+	switch strings.ToLower(month) {
+	case "янв", "1":
+		strMonth = "янв."
+	case "фев", "2":
+		strMonth = "февр"
+	case "мар", "3":
+		strMonth = "мар."
+	case "апр", "4":
+		strMonth = "апр."
+	case "май", "5":
+		strMonth = "мая"
+	case "июн", "6":
+		strMonth = "июн."
+	case "июл", "7":
+		strMonth = "июл."
+	case "авг", "8":
+		strMonth = "авг."
+	case "сен", "9":
+		strMonth = "сент."
+	case "окт", "10":
+		strMonth = "окт."
+	case "ноя", "11":
+		strMonth = "нояб."
+	case "дек", "12":
+		strMonth = "дек."
+	}
+
+	//В ЦИКЛЕ ПО ВСЕМ ЛЮДЯМ ИЩЕМ ТЕХ У КОГО ДЕНЬ РОЖДЕНИЯ В УКАЗАННОМ МЕСЯЦЕ И ДОБАВЛЯЕМ ИХ В НОВУЮ СТРУКТУРУ
+	for _, empl := range employes {
+		if strings.Contains(empl.Date, strMonth) && (strings.HasPrefix(empl.Company, "ЛИИС") || strings.HasPrefix(empl.Company, "Симпл")) {
+			shortName := strings.Split(empl.Name, " ")
+			//ЕСЛИ ФИО ИЗ 3 СЛОВ - ОПРЕДЕЛЯЕМ ПОЛ ПО ОТЧЕСТВУ, УБИРАЕМ ОТЧЕСТВО
+			if len(shortName) == 3 {
+				switch {
+				case
+					strings.HasSuffix(shortName[2], "ч"):
+					empl.Male = "М"
+				case
+					strings.HasSuffix(shortName[2], "а"):
+					empl.Male = "Ж"
+				default:
+					empl.Male = "?"
+				}
+				empl.Name = shortName[1] + " " + shortName[0]
+			} else {
+				empl.Male = "?"
+			}
+
+			//ИЗМЕНЯЕМ НАЗВАНИЕ ОТДЕЛА НА БОЛЕЕ КОРОТКОЕ
+			switch {
+			case strings.Contains(empl.Department, "ПТО"):
+				empl.Department = "Отдел ПТО"
+			case strings.Contains(empl.Department, "(ПО)"):
+				empl.Department = "Отдел IT"
+			case strings.Contains(empl.Department, "ПНР"):
+				empl.Department = "Отдел ПНР"
+			case strings.Contains(empl.Department, "("): //СОКРАЩАЕМ НАЗВАНИЕ ОТДЕЛА ДО ПЕРВОЙ СКОБКИ
+				dep := strings.Split(empl.Department, "(")
+				if len(dep) > 0 {
+					empl.Department = dep[0]
+				}
+			}
+
+			employesBirthday = append(employesBirthday, empl)
+		}
+	}
+	return employesBirthday
+}
+
 //ФУНКЦИЯ ПОЛУЧЕНИЯ НАСТРОЕК БОТА
 func GetSettings(path string) ([]byte, error) {
 	f, err := os.Open(path)
