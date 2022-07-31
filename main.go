@@ -45,27 +45,31 @@ func main() {
 
 	//СПАМ В ЛИЧКУ ПОДПИСАВШИМСЯ
 	go func() {
-		u := []entity.UsersForSpam{}
-		a := entity.UsersForSpam{}
-		rows, _ := database.Query("SELECT chat_id, username FROM people")
-
-		//ПРОВЕРЯЕМ ВСЕ ДАННЫЕ В ТАБЛИЦЕ ПО ЧАТ ID
-		for rows.Next() {
-			rows.Scan(&a.ChatID, &a.Name)
-			u = append(u, a)
-		}
 		for {
-			//АНОНС ТОЛЬКО В ПЕРИОД 10-11
+			//АНОНС ТОЛЬКО В ПЕРИОД 11-12
 			currentTime := time.Now()
-
 			if currentTime.Hour() == 11 {
+
 				//ПОЛУЧАЕМ СПИСОК ЛЮДЕЙ У КОГО ДР ЗАВТРА
 				birthdayTomorrow := helpers.GetAnonceBirthdayJson(BotSets.Google_sheet_bday_list, BotSets.Google_sheet_bday_url)
+
 				//ЕСЛИ ЛЮДЕЙ У КОТОРЫЙ ДР ЗАВТРА ХОТЯБЫ 1 ДЕЛАЕМ РАССЫЛКУ
 				if len(birthdayTomorrow) > 0 {
 					//ПОЛУЧАЕМ СПИСОК ЛЮДЕЙ КОТОРЫЕ ГОТОВЫ СОБИРАТЬ ДЕНЬГИ
 					donatorList := helpers.GetDonationListJson(BotSets.Google_sheet_bday_list, BotSets.Google_sheet_bday_url)
-					//ИТЕРИРУЕМСЯ ПО ЛЮДЯМ У КОТОРЫХ ДР
+
+					//ПОЛУЧАЕМ СПИСОК ЛЮДЕЙ КОТОРЫМ ДЕЛАТЬ РАССЫЛКУ
+					u := []entity.UsersForSpam{}
+					a := entity.UsersForSpam{}
+					rows, _ := database.Query("SELECT chat_id, username FROM people")
+
+					for rows.Next() {
+						rows.Scan(&a.ChatID, &a.Name)
+						u = append(u, a)
+					}
+					rows.Close()
+
+					//ИТЕРИРУЕМСЯ ПО ЛЮДЯМ У КОТОРЫХ ДР ЗАВТРА
 					for _, peoples := range birthdayTomorrow {
 
 						//СКЛОНЯЕМ ИМЯ И ОТДЕЛ
@@ -78,7 +82,7 @@ func main() {
 								myDonator = donator
 							}
 						}
-						//ЕСЛИ НЕ НАШЛИ КОМУ ПЕРЕВОДИТЬ ИЗ ОТДЕЛА, ИЩЕМ В ОТДЕЛЕ HR
+						//ЕСЛИ НЕ НАШЛИ КОМУ ПЕРЕВОДИТЬ ИЗ ОТДЕЛА ИМЕНИННИКА, ИЩЕМ В ОТДЕЛЕ HR
 						if myDonator.Name == "" {
 							for _, donator := range donatorList {
 								if donator.Department == "Отдел по работе с персоналом" && donator.Name != peoples.Name {
@@ -91,14 +95,10 @@ func main() {
 						for _, follower := range u {
 							if peoples.Name != follower.Name {
 								if departmentR != "" {
-									msg := fmt.Sprintf("Завтра день рождения у %s из %s!\nПодарок собирает %s."+
-										"\nПринимает переводы по номеру %v\nЕсли захочешь поучаствовать - Укажи комментарий, для кого подарок :)"+
-										"\nhttps://web3.online.sberbank.ru/transfers/client", nameR, departmentR, myDonator.Name, myDonator.Telephone)
+									msg := fmt.Sprintf("Завтра день рождения у %s из %s!\nПодарок собирает %s.\nПринимает переводы по номеру %v\nЕсли захочешь поучаствовать - Укажи комментарий, для кого подарок :)\nhttps://web3.online.sberbank.ru/transfers/client", nameR, departmentR, myDonator.Name, myDonator.Telephone)
 									bot.Send(tgbotapi.NewMessage(follower.ChatID, msg))
 								} else {
-									msg := fmt.Sprintf("Завтра день рождения у %s!\nПодарок собирает %s."+
-										"\nПринимает переводы по номеру %v\nЕсли захочешь поучаствовать - Укажи комментарий, для кого подарок :)"+
-										"\nhttps://web3.online.sberbank.ru/transfers/client", nameR, myDonator.Name, myDonator.Telephone)
+									msg := fmt.Sprintf("Завтра день рождения у %s!\nПодарок собирает %s.\nПринимает переводы по номеру %v\nЕсли захочешь поучаствовать - Укажи комментарий, для кого подарок :)\nhttps://web3.online.sberbank.ru/transfers/client", nameR, myDonator.Name, myDonator.Telephone)
 									bot.Send(tgbotapi.NewMessage(follower.ChatID, msg))
 								}
 							}
@@ -161,7 +161,7 @@ func main() {
 				}
 			}
 
-		case "УДАЛИТЬСЯ", "/УДАЛИТЬСЯ": //УДАЛИТЬСЯ ИЗ БД
+		case "/UNSUBSCRIBE", "УДАЛИТЬСЯ": //УДАЛИТЬСЯ ИЗ БД
 
 			//СЧИТЫВАНИЕ ИЗ БАЗЫ
 			data1, _ := database.Query("SELECT chat_id FROM people WHERE chat_id = ?", update.Message.Chat.ID)
@@ -186,7 +186,7 @@ func main() {
 				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Вы удалены из рассылки :("))
 			}
 
-		case "СТАТУС", "/СТАТУС":
+		case "/STATUS", "СТАТУС":
 
 			//СЧИТЫВАНИЕ ИЗ БАЗЫ
 			data1, _ := database.Query("SELECT chat_id, username FROM people WHERE chat_id = ?", update.Message.Chat.ID)
@@ -266,7 +266,7 @@ func main() {
 				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Неверная команда, Введите ОБЪЯВЛЕНИЕКРОМЕ (Пароль) Имя Текст"))
 			}
 
-		case "ПОДПИСЧИКИ", "/ПОДПИСЧИКИ": //ВЫВОДИТ СПИСОК ВСЕХ ПОДПИСАВШИХСЯ
+		case "/SUBSCRIBERS", "ПОДПИСЧИКИ": //ВЫВОДИТ СПИСОК ВСЕХ ПОДПИСАВШИХСЯ
 			msg := ""
 			var sum int
 			//ЗАПРАШИВАЕМ ИЗ БД ВСЕ ИМЕНА
@@ -296,6 +296,7 @@ func main() {
 
 	//СПАМ В ОБЩИЙ ЧАТ
 	//TODO: Вынести в настройки бота отключение спама по флагу
+	//TODO: Добавить анонс пятничных игр
 	/*
 		go func() {
 			for {
