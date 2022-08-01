@@ -9,7 +9,6 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -334,22 +333,21 @@ func main() {
 				birthdayList := helpers.GetBirthdayMonthListJson(BotSets.Google_sheet_bday_list, BotSets.Google_sheet_bday_url, month)
 
 				//СОРТИРУЕМ ПО ДНЮ РОЖДЕНИЯ
-				sort.Slice(birthdayList, func(i, j int) (less bool) {
-					return birthdayList[i].Date < birthdayList[j].Date
-				})
-
+				//РАБОЧАЯ СОРТИРОВКА
+				/*
+					//TODO: реализовать нормальную сортировку по датам
+						sort.Slice(birthdayList, func(i, j int) (less bool) {
+							return birthdayList[i].Date < birthdayList[j].Date
+						})
+				*/
 				//ИТЕРИРУЕМСЯ ПО ЛЮДЯМ У КОТОРЫХ ДР В ТЕКУЩЕМ МЕСЯЦЕ
 				for _, peoples := range birthdayList {
 					msg += fmt.Sprintf("\n%v - %v - %v", peoples.Date, peoples.Name, peoples.Department)
 				}
 
-				//ЕСЛИ НИКОГО НЕ ДОБАВИЛИ В СООБЩЕНИЕ - ВЫВОДИМ ОШИБКУ
-				if msg == command[1] {
-					bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Ни у кого нет ДР в этом месяце, вы точно не ошиблись?"))
-				} else {
-					//ВЫВОД В ЧАТ СООБЩЕНИЕ
-					bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
-				}
+				//ВЫВОД В ЧАТ СООБЩЕНИЕ
+				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
+
 			} else {
 				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Не понял вас :( Введите команду вида - Списокдр Январь"))
 			}

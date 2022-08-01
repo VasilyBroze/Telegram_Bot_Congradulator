@@ -458,9 +458,12 @@ func GetBirthdayMonthListJson(list, url, month string) []entity.Employee {
 	var strMonth string
 
 	//УКОРАЧИВАЕМ МЕСЯЦ ДО 3х БУКВ ЕСЛИ ОН ДЛИННЕЕ
-	if len(month) >= 3 {
-		month = month[0:3]
+	if len(month) >= 6 {
+		month = month[0:6]
 	}
+
+	fmt.Println("УКОРОЧЕНЫЙ МЕСЯЦ")
+	fmt.Println(month)
 	//КОНВЕРТАЦИЯ МЕСЯЦА
 	switch strings.ToLower(month) {
 	case "янв", "1":
