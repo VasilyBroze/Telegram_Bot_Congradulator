@@ -462,8 +462,6 @@ func GetBirthdayMonthListJson(list, url, month string) []entity.Employee {
 		month = month[0:6]
 	}
 
-	fmt.Println("УКОРОЧЕНЫЙ МЕСЯЦ")
-	fmt.Println(month)
 	//КОНВЕРТАЦИЯ МЕСЯЦА
 	switch strings.ToLower(month) {
 	case "янв", "1":
@@ -490,6 +488,8 @@ func GetBirthdayMonthListJson(list, url, month string) []entity.Employee {
 		strMonth = "нояб."
 	case "дек", "12":
 		strMonth = "дек."
+	default:
+		return nil
 	}
 
 	//В ЦИКЛЕ ПО ВСЕМ ЛЮДЯМ ИЩЕМ ТЕХ У КОГО ДЕНЬ РОЖДЕНИЯ В УКАЗАННОМ МЕСЯЦЕ И ДОБАВЛЯЕМ ИХ В НОВУЮ СТРУКТУРУ

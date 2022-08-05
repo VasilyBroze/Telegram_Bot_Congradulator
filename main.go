@@ -220,8 +220,9 @@ func main() {
 		case "ОБЪЯВЛЕНИЕВСЕМ":
 			if len(command) > 1 {
 				if command[1] == BotSets.Anonce_pass {
-					trim := fmt.Sprintf("ОБЪЯВЛЕНИЕВСЕМ %v ", BotSets.Anonce_pass)
-					msg := strings.TrimPrefix(update.Message.Text, trim)
+					//trim := fmt.Sprintf("%v %v ", command[0], BotSets.Anonce_pass)
+					//msg := strings.TrimPrefix(update.Message.Text, trim)
+					msg := update.Message.Text[len(command[0])+len(command[1])+2:]
 
 					rows, _ := database.Query("SELECT chat_id FROM people")
 					var chatID int64
@@ -245,7 +246,7 @@ func main() {
 				if command[1] == BotSets.Anonce_pass {
 					//ИМЯ ЧЕЛОВЕКА КОТОРОМУ СООБЩЕНИЕ НЕ ПОЛЕТИТ
 					ignoreName := command[2] + " " + command[3]
-					trim := fmt.Sprintf("ОБЪЯВЛЕНИЕКРОМЕ %v %v ", BotSets.Anonce_pass, ignoreName)
+					trim := fmt.Sprintf("%v %v %v ", command[0], BotSets.Anonce_pass, ignoreName)
 					msg := strings.TrimPrefix(update.Message.Text, trim)
 
 					rows, _ := database.Query("SELECT chat_id, username FROM people")
@@ -291,7 +292,7 @@ func main() {
 			bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
 
 		case "/BIRTHDAYLIST", "СПИСОКДР":
-			if len(command) < 3 { //ЕСЛИ ПОЛЬЗОВАТЕЛЬ НЕ УКАЗАЛ МЕСЯЦ
+			if len(command) < 3 { //ЕСЛИ ПОЛЬЗОВАТЕЛЬ ВВЕЛ КОМАНДУ ВЕРНО
 
 				var month, msg string
 
@@ -332,23 +333,41 @@ func main() {
 				//ПОЛУЧАЕМ МАССИВ ЛЮДЕЙ С ДР В УКАЗАННОМ МЕСЯЦЕ
 				birthdayList := helpers.GetBirthdayMonthListJson(BotSets.Google_sheet_bday_list, BotSets.Google_sheet_bday_url, month)
 
-				//СОРТИРУЕМ ПО ДНЮ РОЖДЕНИЯ
-				//РАБОЧАЯ СОРТИРОВКА
-				/*
-					//TODO: реализовать нормальную сортировку по датам
-						sort.Slice(birthdayList, func(i, j int) (less bool) {
-							return birthdayList[i].Date < birthdayList[j].Date
-						})
-				*/
-				//ИТЕРИРУЕМСЯ ПО ЛЮДЯМ У КОТОРЫХ ДР В ТЕКУЩЕМ МЕСЯЦЕ
-				for _, peoples := range birthdayList {
-					msg += fmt.Sprintf("\n%v - %v - %v", peoples.Date, peoples.Name, peoples.Department)
+				//ОБРАБАТЫВАЕМ ПОЛУЧЕННЫЙ СПИСОК ЛЮДЕЙ
+				if len(birthdayList) < 1 {
+					//ЕСЛИ В СПИСКЕ НИКОГО - ВЫДАЕМ ОШИБКУ
+					bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Ничего не нашел, проверьте месяц"))
+				} else {
+					//ЕСЛИ БОЛЬШЕ ОДНОГО ЧЕЛОВЕКА В СПИСКЕ - СОРТИРУЕМ СПИСОК ПО ДАТЕ
+					if len(birthdayList) > 1 {
+						for i := 0; i < len(birthdayList)-1; i++ {
+							for j := i + 1; j < len(birthdayList); j++ {
+								date1arr := strings.Split(birthdayList[i].Date, " ")
+								date2arr := strings.Split(birthdayList[j].Date, " ")
+								date1, err := strconv.Atoi(date1arr[0])
+								if err != nil {
+									fmt.Println(err)
+								}
+								date2, err := strconv.Atoi(date2arr[0])
+								if err != nil {
+									fmt.Println(err)
+								}
+								if date2 < date1 {
+									birthdayList[i], birthdayList[j] = birthdayList[j], birthdayList[i]
+								}
+							}
+						}
+					}
+
+					//ИТЕРИРУЕМСЯ ПО ЛЮДЯМ У КОТОРЫХ ДР В ТЕКУЩЕМ МЕСЯЦЕ
+					for _, peoples := range birthdayList {
+						msg += fmt.Sprintf("\n%v - %v - %v", peoples.Date, peoples.Name, peoples.Department)
+					}
+
+					//ВЫВОД В ЧАТ СООБЩЕНИЕ
+					bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
 				}
-
-				//ВЫВОД В ЧАТ СООБЩЕНИЕ
-				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
-
-			} else {
+			} else { //ЕСЛИ ВВЕДЕНО БОЛЬШЕ СЛОВ ЧЕМ НУЖНО
 				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Не понял вас :( Введите команду вида - Списокдр Январь"))
 			}
 
