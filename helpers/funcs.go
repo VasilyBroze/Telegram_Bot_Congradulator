@@ -308,7 +308,8 @@ func GetAnonceBirthdayJson(list, url string) []entity.Employee {
 
 	//В ЦИКЛЕ ПО ВСЕМ ЛЮДЯМ ИЩЕМ ТЕХ У КОГО ЗАВТРА ДЕНЬ РОЖДЕНИЯ И ДОБАВЛЯЕМ ИХ В НОВУЮ СТРУКТУРУ
 	for _, empl := range employes {
-		if strings.HasPrefix(empl.Date, strDate) && (strings.HasPrefix(empl.Company, "ЛИИС") || strings.HasPrefix(empl.Company, "Симпл")) {
+		//ЕСЛИ ДАТА РОЖДЕНИЯ СОВПАДАЕТ С ЗАВТРАШНИМ ДНЁМ, ЧЕЛОВЕК ХОЧЕТ ПОЛУЧАТЬ ПОДАРКИ И СОСТОИТ В КОМПАНИИ ЛИИС/СИМПЛЧАРЖ ДОБАВЛЯЕМ ЕГО В СТРУКТУРУ
+		if strings.HasPrefix(empl.Date, strDate) && empl.Gift != "Нет" && (strings.HasPrefix(empl.Company, "ЛИИС") || strings.HasPrefix(empl.Company, "Симпл")) {
 			shortName := strings.Split(empl.Name, " ")
 			//ЕСЛИ ФИО ИЗ 3 СЛОВ - ОПРЕДЕЛЯЕМ ПОЛ ПО ОТЧЕСТВУ, УБИРАЕМ ОТЧЕСТВО
 			if len(shortName) == 3 {
