@@ -303,8 +303,8 @@ func GetAnonceBirthdayJson(list, url string) []entity.Employee {
 
 	//КОНВЕРТАЦИЯ ДНЯ
 	strDay = strconv.Itoa(tomorrow.Day())
-
-	strDate = strDay + " " + strMonth //ПРИВОДИМ ДАТУ К ВИДУ ГУГЛДОК
+	//ПРИВОДИМ ДАТУ К ВИДУ ГУГЛДОК
+	strDate = strDay + " " + strMonth
 
 	//В ЦИКЛЕ ПО ВСЕМ ЛЮДЯМ ИЩЕМ ТЕХ У КОГО ЗАВТРА ДЕНЬ РОЖДЕНИЯ И ДОБАВЛЯЕМ ИХ В НОВУЮ СТРУКТУРУ
 	for _, empl := range employes {
@@ -442,7 +442,7 @@ func GetBirthdayJson(list, url string) []entity.Employee {
 	return employesBirthday
 }
 
-//ПАРСИМ ЛЮДЕЙ У КОТОРЫХ ЗАВТРА ДЕНЬ РОЖДЕНИЯ, ОПРЕДЕЛЯЕМ ПОЛ
+//ПАРСИМ ЛЮДЕЙ У КОТОРЫХ ДЕНЬ РОЖДЕНИЯ В НУЖНОМ МЕСЯЦЕ
 func GetBirthdayMonthListJson(list, url, month string) []entity.Employee {
 	resp, _ := http.Get(fmt.Sprintf("https://tools.aimylogic.com/api/googlesheet2json?sheet=%v&id=%v", list, url))
 	defer resp.Body.Close()
