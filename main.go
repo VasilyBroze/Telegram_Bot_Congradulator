@@ -14,6 +14,19 @@ import (
 	"time"
 )
 
+var numericKeyboard = tgbotapi.NewReplyKeyboard(
+	tgbotapi.NewKeyboardButtonRow(
+		tgbotapi.NewKeyboardButton("Описание"),
+		tgbotapi.NewKeyboardButton("Статус"),
+		tgbotapi.NewKeyboardButton("Подписчики"),
+	),
+	tgbotapi.NewKeyboardButtonRow(
+		tgbotapi.NewKeyboardButton("СписокДР"),
+		tgbotapi.NewKeyboardButton("Удалиться"),
+		tgbotapi.NewKeyboardButton("Фильтры"),
+	),
+)
+
 func main() {
 
 	var BotSets entity.BotSettings
@@ -76,11 +89,24 @@ func main() {
 						//СКЛОНЯЕМ ИМЯ И ОТДЕЛ
 						nameR := helpers.GetPrettySuffix(peoples.Name, "R")
 						departmentR := helpers.GetPrettySuffix(peoples.Department, "R")
-						//ИЩЕМ ЧЕЛОВЕКА ОТВЕТСТВЕННОГО ЗА СБОР СРЕДСТВ ВНУТРИ ОТДЕЛА
+
 						var myDonator entity.Employee
-						for _, donator := range donatorList {
-							if donator.Department == peoples.Department && donator.Name != peoples.Name {
-								myDonator = donator
+
+						if strings.Contains(peoples.Donater, "@") {
+							for _, donator := range donatorList {
+								if donator.Mail == peoples.Donater && donator.Name != peoples.Name {
+									myDonator = donator
+									break
+								}
+							}
+						}
+						//ИЩЕМ ЧЕЛОВЕКА ОТВЕТСТВЕННОГО ЗА СБОР СРЕДСТВ ВНУТРИ ОТДЕЛА
+						if myDonator.Name == "" {
+							for _, donator := range donatorList {
+								if donator.Department == peoples.Department && donator.Name != peoples.Name {
+									myDonator = donator
+									break
+								}
 							}
 						}
 						//ЕСЛИ НЕ НАШЛИ КОМУ ПЕРЕВОДИТЬ ИЗ ОТДЕЛА ИМЕНИННИКА, ИЩЕМ В ОТДЕЛЕ HR
@@ -88,6 +114,7 @@ func main() {
 							for _, donator := range donatorList {
 								if donator.Department == "Отдел по работе с персоналом" && donator.Name != peoples.Name {
 									myDonator = donator
+									break
 								}
 							}
 						}
@@ -128,6 +155,7 @@ func main() {
 		if update.Message == nil { // If we got a message
 			continue
 		}
+
 		command := strings.Split(update.Message.Text, " ")
 		command[0] = strings.ToUpper(command[0])
 		switch command[0] {
@@ -215,6 +243,10 @@ func main() {
 				"\nСписокдр август - покажу у кого ДР в этом месяце. Если месяц не указан - покажу текущий месяц")
 			bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
 
+		case "/FILTERS", "ФИЛЬТРЫ":
+			msg := fmt.Sprintf("На данный момент фильтры недоступны, придётся смотреть на все дни рождения :)")
+			bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
+
 		case "/START":
 			msg := fmt.Sprintf("Привет! Я помогу тебе поздравлять твоих коллег без десятков надоедливых чатов :)\n" +
 				"Для начала, зарегистрируйся. Примерно так: \nРегистрация Иван Иванов (сначала имя, потом фамилия)\n" +
@@ -295,6 +327,12 @@ func main() {
 			msg += fmt.Sprintf("\nЧисло подписчиков: %v", sum)
 			//ВЫВОД В ЧАТ
 			bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
+		case "OPEN":
+			//msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+			//msg.ReplyMarkup = numericKeyboard
+		case "CLOSE":
+			//msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+			//msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
 
 		case "/BIRTHDAYLIST", "СПИСОКДР":
 			if len(command) < 3 { //ЕСЛИ ПОЛЬЗОВАТЕЛЬ ВВЕЛ КОМАНДУ ВЕРНО

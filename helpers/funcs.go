@@ -176,7 +176,7 @@ func GetPrettySuffix(people, padej string) string {
 	return name
 }
 
-//ПАРСИМ ЛЮДЕЙ У КОТОРЫЕ МОГУТ БЫТЬ СБОРЩИКАМИ СРЕДСТВ
+//ПАРСИМ ЛЮДЕЙ КОТОРЫЕ МОГУТ БЫТЬ СБОРЩИКАМИ СРЕДСТВ
 func GetDonationListJson(list, url string) []entity.Employee {
 	resp, _ := http.Get(fmt.Sprintf("https://tools.aimylogic.com/api/googlesheet2json?sheet=%v&id=%v", list, url))
 	defer resp.Body.Close()
