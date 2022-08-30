@@ -33,7 +33,7 @@ func main() {
 
 	//СОЗДАНИЕ БД
 	database, _ := sql.Open("sqlite3", "./TelegramBot_Congratulator.db")
-	statement, _ := database.Prepare("CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, chat_id INTEGER,username TEXT)")
+	statement, _ := database.Prepare("CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, chat_id INTEGER,username TEXT, department_filter TEXT)")
 	statement.Exec()
 
 	//ИЗВЛЕКАЕМ ИЗ ФАЙЛА С НАСТРОЙКАМИ ПОЛЯ
@@ -180,8 +180,11 @@ func main() {
 					statement, _ = database.Prepare("INSERT INTO people (chat_id, username) VALUES (?, ?)")
 					statement.Exec(update.Message.Chat.ID, userInputName)
 					//ВЫВОД В ЧАТ
-					regComplited := fmt.Sprintf("Регистрация завершена, %v", userInputName)
-					bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, regComplited))
+					text := fmt.Sprintf("Регистрация завершена, %v", userInputName)
+
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+					msg.ReplyMarkup = numericKeyboard
+					bot.Send(msg)
 
 				} else {
 					//ЕСЛИ СТРОКА ЕСТЬ - ОБНОВЛЯЕМ ЗНАЧЕНИЕ
@@ -207,8 +210,11 @@ func main() {
 			if chatId == 0 {
 				//ЕСЛИ СТРОКИ ВЫВОДИМ СООБЩЕНИЕ В ЧАТ
 
-				delFailed := fmt.Sprintf("Вас не было в рассылке")
-				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, delFailed))
+				text := fmt.Sprintf("Вас не было в рассылке")
+
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+				msg.ReplyMarkup = numericKeyboard
+				bot.Send(msg)
 
 			} else {
 				//ЕСЛИ СТРОКА ЕСТЬ - УДАЛЯЕМ ПОЛЬЗОВАТЕЛЯ
@@ -217,7 +223,10 @@ func main() {
 					fmt.Println("Ошибка удаления")
 				}
 				//ВЫВОД В ЧАТ
-				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Вы удалены из рассылки :("))
+				text := "Вы удалены из рассылки :("
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+				msg.ReplyMarkup = numericKeyboard
+				bot.Send(msg)
 			}
 
 		case "/STATUS", "СТАТУС":
@@ -231,28 +240,37 @@ func main() {
 			data1.Scan(&chatId, &username)
 			data1.Close()
 			if username != "" {
-				statusMsg := fmt.Sprintf("Ваше имя в рассылке %v", username)
-				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, statusMsg))
+				text := fmt.Sprintf("Ваше имя в рассылке %v", username)
+
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+				msg.ReplyMarkup = numericKeyboard
+				bot.Send(msg)
 			} else {
 				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Вас нет в рассылке :( для регистрации введите\nРегистрация Имя Фамилия"))
 			}
 
 		case "/DESCRIPTION", "ОПИСАНИЕ":
-			msg := fmt.Sprintf("Описание комманд:\nРегистация Имя Фамилия - зарегистрироваться или обновить данные" +
+			text := fmt.Sprintf("Описание комманд:\nРегистация Имя Фамилия - зарегистрироваться или обновить данные" +
 				"\nУдалиться - удалиться из рассылок\nСтатус - ваше имя в рассылке\nПодписчики - список подписавшихся" +
 				"\nСписокдр август - покажу у кого ДР в этом месяце. Если месяц не указан - покажу текущий месяц")
-			bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
+
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+			msg.ReplyMarkup = numericKeyboard
+			bot.Send(msg)
 
 		case "/FILTERS", "ФИЛЬТРЫ":
 			msg := fmt.Sprintf("На данный момент фильтры недоступны, придётся смотреть на все дни рождения :)")
 			bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
 
 		case "/START":
-			msg := fmt.Sprintf("Привет! Я помогу тебе поздравлять твоих коллег без десятков надоедливых чатов :)\n" +
+			text := fmt.Sprintf("Привет! Я помогу тебе поздравлять твоих коллег без десятков надоедливых чатов :)\n" +
 				"Для начала, зарегистрируйся. Примерно так: \nРегистрация Иван Иванов (сначала имя, потом фамилия)\n" +
 				"Чтобы узнать что я умею введи Описание\n" +
 				"Хорошего тебе дня!")
-			bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
+
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+			msg.ReplyMarkup = numericKeyboard
+			bot.Send(msg)
 
 		case "ОБЪЯВЛЕНИЕВСЕМ":
 			if len(command) > 1 {
@@ -284,7 +302,7 @@ func main() {
 					//ИМЯ ЧЕЛОВЕКА КОТОРОМУ СООБЩЕНИЕ НЕ ПОЛЕТИТ
 					ignoreName := command[2] + " " + command[3]
 					trim := fmt.Sprintf("%v %v %v ", command[0], BotSets.Anonce_pass, ignoreName)
-					msg := strings.TrimPrefix(update.Message.Text, trim)
+					text := strings.TrimPrefix(update.Message.Text, trim)
 
 					rows, _ := database.Query("SELECT chat_id, username FROM people")
 					var chatID int64
@@ -294,7 +312,10 @@ func main() {
 					for rows.Next() {
 						rows.Scan(&chatID, &userName)
 						if userName != ignoreName {
-							bot.Send(tgbotapi.NewMessage(chatID, msg))
+							bot.Send(tgbotapi.NewMessage(chatID, text))
+							msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+							msg.ReplyMarkup = numericKeyboard
+							bot.Send(msg)
 						}
 					}
 
@@ -307,7 +328,7 @@ func main() {
 			}
 
 		case "/SUBSCRIBERS", "ПОДПИСЧИКИ": //ВЫВОДИТ СПИСОК ВСЕХ ПОДПИСАВШИХСЯ
-			msg := ""
+			text := ""
 			var sum int
 			//ЗАПРАШИВАЕМ ИЗ БД ВСЕ ИМЕНА
 			rows, _ := database.Query("SELECT username FROM people")
@@ -318,59 +339,69 @@ func main() {
 				rows.Scan(&followers)
 
 				sum += 1
-				if msg != "" {
-					msg += fmt.Sprintf("\n%s", followers)
+				if text != "" {
+					text += fmt.Sprintf("\n%s", followers)
 				} else {
-					msg += fmt.Sprintf("%s", followers)
+					text += fmt.Sprintf("%s", followers)
 				}
 			}
-			msg += fmt.Sprintf("\nЧисло подписчиков: %v", sum)
+			text += fmt.Sprintf("\nЧисло подписчиков: %v", sum)
 			//ВЫВОД В ЧАТ
-			bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+			msg.ReplyMarkup = numericKeyboard
+			bot.Send(msg)
 		case "OPEN":
-			//msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-			//msg.ReplyMarkup = numericKeyboard
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Открыто")
+			msg.ReplyMarkup = numericKeyboard
+			bot.Send(msg)
 		case "CLOSE":
-			//msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-			//msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+			msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+			bot.Send(msg)
+
+		case "ОТДЕЛЫ":
+			text := helpers.Departments(BotSets.Google_sheet_bday_list, BotSets.Google_sheet_bday_url)
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+			msg.ReplyMarkup = numericKeyboard
+			bot.Send(msg)
 
 		case "/BIRTHDAYLIST", "СПИСОКДР":
 			if len(command) < 3 { //ЕСЛИ ПОЛЬЗОВАТЕЛЬ ВВЕЛ КОМАНДУ ВЕРНО
 
-				var month, msg string
+				var month, text string
 
 				if len(command) == 1 { //ЕСЛИ ПОЛЬЗОВАТЕЛЬ НЕ ВВЕЛ МЕСЯЦ
 					//КОНВЕРТИРУЕМ ТЕКУЩИЙ МЕСЯЦ В СТРИНГ И ПЕРЕДАЕМ В ФУНКЦИЮ
 					month = strconv.Itoa(int(time.Now().Month()))
 					switch int((time.Now().Month())) {
 					case 1:
-						msg += "Январь"
+						text += "Январь"
 					case 2:
-						msg += "Февраль"
+						text += "Февраль"
 					case 3:
-						msg += "Март"
+						text += "Март"
 					case 4:
-						msg += "Апрель"
+						text += "Апрель"
 					case 5:
-						msg += "Май"
+						text += "Май"
 					case 6:
-						msg += "Июнь"
+						text += "Июнь"
 					case 7:
-						msg += "Июль"
+						text += "Июль"
 					case 8:
-						msg += "Август"
+						text += "Август"
 					case 9:
-						msg += "Сентябрь"
+						text += "Сентябрь"
 					case 10:
-						msg += "Октябрь"
+						text += "Октябрь"
 					case 11:
-						msg += "Ноябрь"
+						text += "Ноябрь"
 					case 12:
-						msg += "Декабрь"
+						text += "Декабрь"
 					}
 				} else { //ЕСЛИ УКАЗАЛ МЕСЯЦ - ПЕРЕДАЕМ В ФУНКЦИЮ ВВОД, А СООБЩЕНИЕ НАЧИНАЕМ С ЕГО ВВОДА
 					month = command[1]
-					msg += command[1]
+					text += command[1]
 				}
 
 				//ПОЛУЧАЕМ МАССИВ ЛЮДЕЙ С ДР В УКАЗАННОМ МЕСЯЦЕ
@@ -404,18 +435,26 @@ func main() {
 
 					//ИТЕРИРУЕМСЯ ПО ЛЮДЯМ У КОТОРЫХ ДР В ТЕКУЩЕМ МЕСЯЦЕ
 					for _, peoples := range birthdayList {
-						msg += fmt.Sprintf("\n%v - %v - %v", peoples.Date, peoples.Name, peoples.Department)
+						text += fmt.Sprintf("\n%v - %v - %v", peoples.Date, peoples.Name, peoples.Department)
 					}
 
 					//ВЫВОД В ЧАТ СООБЩЕНИЕ
-					bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+					msg.ReplyMarkup = numericKeyboard
+					bot.Send(msg)
 				}
 			} else { //ЕСЛИ ВВЕДЕНО БОЛЬШЕ СЛОВ ЧЕМ НУЖНО
-				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Не понял вас :( Введите команду вида - Списокдр Январь"))
+				text := "Не понял вас :( Введите команду вида - Списокдр Январь"
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+				msg.ReplyMarkup = numericKeyboard
+				bot.Send(msg)
 			}
 
 		default:
-			bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Команда не найдена, посмотрите Описание"))
+			text := "Команда не найдена, посмотрите Описание"
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+			msg.ReplyMarkup = numericKeyboard
+			bot.Send(msg)
 		}
 	}
 	//КОМАНДЫ КОНЧИЛАСЬ
