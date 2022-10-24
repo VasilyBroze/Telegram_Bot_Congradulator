@@ -124,14 +124,16 @@ func main() {
 							if peoples.Name != follower.Name {
 								if departmentR != "" {
 									if myDonator.Name != "" { //ЕСЛИ НАШЛИ ЧЕЛОВЕКА, КОТОРЫЙ ГОТОВ СОБИРАТЬ ДЕНЬГИ
-										msg := fmt.Sprintf("Завтра день рождения у %s из %s!\nПодарок собирает %s.\nПринимает переводы по номеру %v\nЕсли захочешь поучаствовать - Укажи комментарий, для кого подарок :)\nhttps://web3.online.sberbank.ru/transfers/client", nameR, departmentR, myDonator.Name, myDonator.Telephone)
+										msg := fmt.Sprintf("Завтра день рождения у %s из %s!\nПодарок собирает %s.\nПринимает переводы по номеру %v\nЕсли захочешь поучаствовать - Укажи комментарий, для кого подарок :)", nameR, departmentR, myDonator.Name, myDonator.Telephone)
 										bot.Send(tgbotapi.NewMessage(follower.ChatID, msg))
 									} else { //ЕСЛИ НЕ НАШЛИ ЧЕЛОВЕКА, КОТОРЫЙ ГОТОВ СОБИРАТЬ ДЕНЬГИ
 										msg := fmt.Sprintf("Завтра день рождения у %s из %s!\nЯ не нашёл никого, кто будет собирать подарки, поэтому просто поздравим словестно!)", nameR, departmentR)
 										bot.Send(tgbotapi.NewMessage(follower.ChatID, msg))
 									}
 								} else {
-									msg := fmt.Sprintf("Завтра день рождения у %s!\nПодарок собирает %s.\nПринимает переводы по номеру %v\nЕсли захочешь поучаствовать - Укажи комментарий, для кого подарок :)\nhttps://web3.online.sberbank.ru/transfers/client", nameR, myDonator.Name, myDonator.Telephone)
+									msg := fmt.Sprintf("Завтра день рождения у %s!\nПодарок собирает %s.\nПринимает переводы по номеру %v\nЕсли захочешь поучаствовать - Укажи комментарий, для кого подарок :)", nameR, myDonator.Name, myDonator.Telephone)
+
+									//https://web3.online.sberbank.ru/transfers/client ССЫЛКА НА ЛК СБЕРА
 									bot.Send(tgbotapi.NewMessage(follower.ChatID, msg))
 								}
 							}
@@ -162,7 +164,7 @@ func main() {
 
 		case "РЕГИСТРАЦИЯ": //ДОБАВИТЬ ЧЕЛОВЕКА В БД
 			if len(command) != 3 {
-				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Не понял Вас, Жду сообщения вида Регистация Иван Иванов"))
+				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Не понял Вас, Жду сообщения вида Регистрация Иван Иванов"))
 			} else {
 				//ИМЯ ПОЛЬЗОВАТЕЛЯ
 				userInputName := command[1] + " " + command[2]

@@ -20,7 +20,7 @@ import (
 	"time"
 )
 
-//ГЕНЕРИРУЕМ СООБЩЕНИЕ ПО ГУГЛ ТАБЛИЦЕ С ЗАГОТОВКАМИ
+// ГЕНЕРИРУЕМ СООБЩЕНИЕ ПО ГУГЛ ТАБЛИЦЕ С ЗАГОТОВКАМИ
 func GetBirthdayMsg(peoples entity.Employee, list, url string) string {
 	//МАССИВЫ СТРУКТУР ЧАСТЕЙ ПОЗДРАВЛЕНИЯ
 	fTP, sTP, tTP := GetCongratArrays(list, url)
@@ -82,7 +82,7 @@ func GetBirthdayMsg(peoples entity.Employee, list, url string) string {
 	return msg
 }
 
-//ПАРСИМ ТАБЛИЦУ С ТЕКСТОМ ПОЗДРАВЛЕНИЙ И РАСПРЕДЕЛЯЕМ ИХ ПО МАССИВАМ
+// ПАРСИМ ТАБЛИЦУ С ТЕКСТОМ ПОЗДРАВЛЕНИЙ И РАСПРЕДЕЛЯЕМ ИХ ПО МАССИВАМ
 func GetCongratArrays(list, url string) ([]entity.TextFirstPart, []entity.TextSecondPart, []entity.TextThirdPart) {
 	resp, _ := http.Get(fmt.Sprintf("https://tools.aimylogic.com/api/googlesheet2json?sheet=%v&id=%v", list, url))
 	defer resp.Body.Close()
@@ -136,7 +136,7 @@ func GetCongratArrays(list, url string) ([]entity.TextFirstPart, []entity.TextSe
 	return fTPraw, sTPraw, tTPraw
 }
 
-//ПОЛУЧАЕМ ИМЯ В НУЖНОМ ПАДЕЖЕ
+// ПОЛУЧАЕМ ИМЯ В НУЖНОМ ПАДЕЖЕ
 func GetPrettySuffix(people, padej string) string {
 	name := people
 	people = strings.Replace(people, " ", "%20", -1)
@@ -176,7 +176,7 @@ func GetPrettySuffix(people, padej string) string {
 	return name
 }
 
-//ПАРСИМ ЛЮДЕЙ КОТОРЫЕ МОГУТ БЫТЬ СБОРЩИКАМИ СРЕДСТВ
+// ПАРСИМ ЛЮДЕЙ КОТОРЫЕ МОГУТ БЫТЬ СБОРЩИКАМИ СРЕДСТВ
 func GetDonationListJson(list, url string) []entity.Employee {
 	resp, _ := http.Get(fmt.Sprintf("https://tools.aimylogic.com/api/googlesheet2json?sheet=%v&id=%v", list, url))
 	defer resp.Body.Close()
@@ -254,7 +254,7 @@ func GetDonationListJson(list, url string) []entity.Employee {
 	return employesBirthday
 }
 
-//ПАРСИМ ЛЮДЕЙ У КОТОРЫХ ЗАВТРА ДЕНЬ РОЖДЕНИЯ, ОПРЕДЕЛЯЕМ ПОЛ
+// ПАРСИМ ЛЮДЕЙ У КОТОРЫХ ЗАВТРА ДЕНЬ РОЖДЕНИЯ, ОПРЕДЕЛЯЕМ ПОЛ
 func GetAnonceBirthdayJson(list, url string) []entity.Employee {
 	resp, _ := http.Get(fmt.Sprintf("https://tools.aimylogic.com/api/googlesheet2json?sheet=%v&id=%v", list, url))
 	defer resp.Body.Close()
@@ -309,7 +309,7 @@ func GetAnonceBirthdayJson(list, url string) []entity.Employee {
 	//В ЦИКЛЕ ПО ВСЕМ ЛЮДЯМ ИЩЕМ ТЕХ У КОГО ЗАВТРА ДЕНЬ РОЖДЕНИЯ И ДОБАВЛЯЕМ ИХ В НОВУЮ СТРУКТУРУ
 	for _, empl := range employes {
 		//ЕСЛИ ДАТА РОЖДЕНИЯ СОВПАДАЕТ С ЗАВТРАШНИМ ДНЁМ, ЧЕЛОВЕК ХОЧЕТ ПОЛУЧАТЬ ПОДАРКИ И СОСТОИТ В КОМПАНИИ ЛИИС/СИМПЛЧАРЖ ДОБАВЛЯЕМ ЕГО В СТРУКТУРУ
-		if strings.HasPrefix(empl.Date, strDate) && empl.Gift != "Нет" && (strings.HasPrefix(empl.Company, "ЛИИС") || strings.HasPrefix(empl.Company, "Симпл")) {
+		if strings.HasPrefix(empl.Date, strDate) && empl.Gift != "Нет" /*&& (strings.HasPrefix(empl.Company, "ЛИИС") || strings.HasPrefix(empl.Company, "Симпл"))*/ {
 			shortName := strings.Split(empl.Name, " ")
 			//ЕСЛИ ФИО ИЗ 3 СЛОВ - ОПРЕДЕЛЯЕМ ПОЛ ПО ОТЧЕСТВУ, УБИРАЕМ ОТЧЕСТВО
 			if len(shortName) == 3 {
@@ -349,7 +349,7 @@ func GetAnonceBirthdayJson(list, url string) []entity.Employee {
 	return employesBirthday
 }
 
-//ПАРСИМ ЛЮДЕЙ У КОТОРЫХ СЕГОДНЯ ДЕНЬ РОЖДЕНИЯ, ОПРЕДЕЛЯЕМ ПОЛ
+// ПАРСИМ ЛЮДЕЙ У КОТОРЫХ СЕГОДНЯ ДЕНЬ РОЖДЕНИЯ, ОПРЕДЕЛЯЕМ ПОЛ
 func GetBirthdayJson(list, url string) []entity.Employee {
 	resp, _ := http.Get(fmt.Sprintf("https://tools.aimylogic.com/api/googlesheet2json?sheet=%v&id=%v", list, url))
 	defer resp.Body.Close()
@@ -402,7 +402,7 @@ func GetBirthdayJson(list, url string) []entity.Employee {
 
 	//В ЦИКЛЕ ПО ВСЕМ ЛЮДЯМ ИЩЕМ ТЕХ У КОГО ДЕНЬ РОЖДЕНИЯ И ДОБАВЛЯЕМ ИХ В НОВУЮ СТРУКТУРУ
 	for _, empl := range employes {
-		if strings.HasPrefix(empl.Date, strDate) && (strings.HasPrefix(empl.Company, "ЛИИС") || strings.HasPrefix(empl.Company, "Симпл")) {
+		if strings.HasPrefix(empl.Date, strDate) /*&& (strings.HasPrefix(empl.Company, "ЛИИС") || strings.HasPrefix(empl.Company, "Симпл")) */ {
 			shortName := strings.Split(empl.Name, " ")
 			//ЕСЛИ ФИО ИЗ 3 СЛОВ - ОПРЕДЕЛЯЕМ ПОЛ ПО ОТЧЕСТВУ, УБИРАЕМ ОТЧЕСТВО
 			if len(shortName) == 3 {
@@ -442,7 +442,7 @@ func GetBirthdayJson(list, url string) []entity.Employee {
 	return employesBirthday
 }
 
-//ПАРСИМ ЛЮДЕЙ У КОТОРЫХ ДЕНЬ РОЖДЕНИЯ В НУЖНОМ МЕСЯЦЕ
+// ПАРСИМ ЛЮДЕЙ У КОТОРЫХ ДЕНЬ РОЖДЕНИЯ В НУЖНОМ МЕСЯЦЕ
 func GetBirthdayMonthListJson(list, url, month string) []entity.Employee {
 	resp, _ := http.Get(fmt.Sprintf("https://tools.aimylogic.com/api/googlesheet2json?sheet=%v&id=%v", list, url))
 	defer resp.Body.Close()
@@ -495,7 +495,7 @@ func GetBirthdayMonthListJson(list, url, month string) []entity.Employee {
 
 	//В ЦИКЛЕ ПО ВСЕМ ЛЮДЯМ ИЩЕМ ТЕХ У КОГО ДЕНЬ РОЖДЕНИЯ В УКАЗАННОМ МЕСЯЦЕ И ДОБАВЛЯЕМ ИХ В НОВУЮ СТРУКТУРУ
 	for _, empl := range employes {
-		if strings.Contains(empl.Date, strMonth) && (strings.HasPrefix(empl.Company, "ЛИИС") || strings.HasPrefix(empl.Company, "Симпл")) {
+		if strings.Contains(empl.Date, strMonth) /*&& (strings.HasPrefix(empl.Company, "ЛИИС") || strings.HasPrefix(empl.Company, "Симпл")) */ {
 			shortName := strings.Split(empl.Name, " ")
 			//ЕСЛИ ФИО ИЗ 3 СЛОВ - ОПРЕДЕЛЯЕМ ПОЛ ПО ОТЧЕСТВУ, УБИРАЕМ ОТЧЕСТВО
 			if len(shortName) == 3 {
@@ -535,7 +535,7 @@ func GetBirthdayMonthListJson(list, url, month string) []entity.Employee {
 	return employesBirthday
 }
 
-//ФУНКЦИЯ ПОЛУЧЕНИЯ НАСТРОЕК БОТА
+// ФУНКЦИЯ ПОЛУЧЕНИЯ НАСТРОЕК БОТА
 func GetSettings(path string) ([]byte, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -544,8 +544,8 @@ func GetSettings(path string) ([]byte, error) {
 	return ioutil.ReadAll(f)
 }
 
-//тест функция отделы
-//ПАРСИМ ЛЮДЕЙ У КОТОРЫХ ДЕНЬ РОЖДЕНИЯ В НУЖНОМ МЕСЯЦЕ
+// тест функция отделы
+// ПАРСИМ ЛЮДЕЙ У КОТОРЫХ ДЕНЬ РОЖДЕНИЯ В НУЖНОМ МЕСЯЦЕ
 func Departments(list, url string) string {
 	resp, _ := http.Get(fmt.Sprintf("https://tools.aimylogic.com/api/googlesheet2json?sheet=%v&id=%v", list, url))
 	defer resp.Body.Close()
@@ -561,42 +561,42 @@ func Departments(list, url string) string {
 
 	//В ЦИКЛЕ ПО ВСЕМ ЛЮДЯМ ИЩЕМ ТЕХ У КОГО ДЕНЬ РОЖДЕНИЯ В УКАЗАННОМ МЕСЯЦЕ И ДОБАВЛЯЕМ ИХ В НОВУЮ СТРУКТУРУ
 	for _, empl := range employes {
-		if strings.HasPrefix(empl.Company, "ЛИИС") || strings.HasPrefix(empl.Company, "Симпл") {
-			shortName := strings.Split(empl.Name, " ")
-			//ЕСЛИ ФИО ИЗ 3 СЛОВ - ОПРЕДЕЛЯЕМ ПОЛ ПО ОТЧЕСТВУ, УБИРАЕМ ОТЧЕСТВО
-			if len(shortName) == 3 {
-				switch {
-				case
-					strings.HasSuffix(shortName[2], "ч"):
-					empl.Male = "М"
-				case
-					strings.HasSuffix(shortName[2], "а"):
-					empl.Male = "Ж"
-				default:
-					empl.Male = "?"
-				}
-				empl.Name = shortName[1] + " " + shortName[0]
-			} else {
+		/*if strings.HasPrefix(empl.Company, "ЛИИС") || strings.HasPrefix(empl.Company, "Симпл") {*/
+		shortName := strings.Split(empl.Name, " ")
+		//ЕСЛИ ФИО ИЗ 3 СЛОВ - ОПРЕДЕЛЯЕМ ПОЛ ПО ОТЧЕСТВУ, УБИРАЕМ ОТЧЕСТВО
+		if len(shortName) == 3 {
+			switch {
+			case
+				strings.HasSuffix(shortName[2], "ч"):
+				empl.Male = "М"
+			case
+				strings.HasSuffix(shortName[2], "а"):
+				empl.Male = "Ж"
+			default:
 				empl.Male = "?"
 			}
-
-			//ИЗМЕНЯЕМ НАЗВАНИЕ ОТДЕЛА НА БОЛЕЕ КОРОТКОЕ
-			switch {
-			case strings.Contains(empl.Department, "ПТО"):
-				empl.Department = "Отдел ПТО"
-			case strings.Contains(empl.Department, "(ПО)"):
-				empl.Department = "Отдел IT"
-			case strings.Contains(empl.Department, "ПНР"):
-				empl.Department = "Отдел ПНР"
-			case strings.Contains(empl.Department, "("): //СОКРАЩАЕМ НАЗВАНИЕ ОТДЕЛА ДО ПЕРВОЙ СКОБКИ
-				dep := strings.Split(empl.Department, "(")
-				if len(dep) > 0 {
-					empl.Department = dep[0]
-				}
-			}
-
-			employesBirthday = append(employesBirthday, empl)
+			empl.Name = shortName[1] + " " + shortName[0]
+		} else {
+			empl.Male = "?"
 		}
+
+		//ИЗМЕНЯЕМ НАЗВАНИЕ ОТДЕЛА НА БОЛЕЕ КОРОТКОЕ
+		switch {
+		case strings.Contains(empl.Department, "ПТО"):
+			empl.Department = "Отдел ПТО"
+		case strings.Contains(empl.Department, "(ПО)"):
+			empl.Department = "Отдел IT"
+		case strings.Contains(empl.Department, "ПНР"):
+			empl.Department = "Отдел ПНР"
+		case strings.Contains(empl.Department, "("): //СОКРАЩАЕМ НАЗВАНИЕ ОТДЕЛА ДО ПЕРВОЙ СКОБКИ
+			dep := strings.Split(empl.Department, "(")
+			if len(dep) > 0 {
+				empl.Department = dep[0]
+			}
+		}
+
+		employesBirthday = append(employesBirthday, empl)
+		//}
 	}
 	msg := ""
 	for _, unicue_dep := range employesBirthday {
