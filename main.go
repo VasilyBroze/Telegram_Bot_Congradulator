@@ -23,7 +23,7 @@ var numericKeyboard = tgbotapi.NewReplyKeyboard(
 	tgbotapi.NewKeyboardButtonRow(
 		tgbotapi.NewKeyboardButton("СписокДР"),
 		tgbotapi.NewKeyboardButton("Удалиться"),
-		tgbotapi.NewKeyboardButton("Фильтры"),
+		tgbotapi.NewKeyboardButton("Зарегистрироваться"),
 	),
 )
 
@@ -260,13 +260,13 @@ func main() {
 			msg.ReplyMarkup = numericKeyboard
 			bot.Send(msg)
 
-		case "/FILTERS", "ФИЛЬТРЫ":
-			msg := fmt.Sprintf("На данный момент фильтры недоступны, придётся смотреть на все дни рождения :)")
+		case "/REGISTER", "ЗАРЕГИСТРИРОВАТЬСЯ":
+			msg := fmt.Sprintf("Напишите мне сообщение вида: **Регистрация Иван Иванов** (Сперва имя, потом фамилия)")
 			bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
 
 		case "/START":
 			text := fmt.Sprintf("Привет! Я помогу тебе поздравлять твоих коллег без десятков надоедливых чатов :)\n" +
-				"Для начала, зарегистрируйся. Примерно так: \nРегистрация Иван Иванов (сначала имя, потом фамилия)\n" +
+				"Для начала, зарегистрируйся. Напишите примерно так: \nРегистрация Иван Иванов (сначала имя, потом фамилия)\n" +
 				"Чтобы узнать что я умею введи Описание\n" +
 				"Хорошего тебе дня!")
 
