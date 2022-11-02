@@ -268,7 +268,7 @@ func GetAnonceBirthdayJson(list, url string) []entity.Employee {
 
 	employesBirthday := []entity.Employee{} //СТРУКТУРА ЛЮДЕЙ С ДНЁМ РОЖДЕНИЯ
 	currentTime := time.Now()
-	tomorrow := currentTime.Add(24 * time.Hour)
+	tomorrow := currentTime.Add(48 * time.Hour)
 
 	var strMonth, strDay, strDate string
 

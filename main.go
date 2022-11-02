@@ -124,14 +124,14 @@ func main() {
 							if peoples.Name != follower.Name {
 								if departmentR != "" {
 									if myDonator.Name != "" { //ЕСЛИ НАШЛИ ЧЕЛОВЕКА, КОТОРЫЙ ГОТОВ СОБИРАТЬ ДЕНЬГИ
-										msg := fmt.Sprintf("Завтра день рождения у %s из %s!\nПодарок собирает %s.\nПринимает переводы по номеру %v\nЕсли захочешь поучаствовать - Укажи комментарий, для кого подарок :)", nameR, departmentR, myDonator.Name, myDonator.Telephone)
+										msg := fmt.Sprintf("Послезавтра день рождения у %s из %s!\nПодарок собирает %s.\nПринимает переводы по номеру %v\nЕсли захочешь поучаствовать - Укажи комментарий, для кого подарок :)", nameR, departmentR, myDonator.Name, myDonator.Telephone)
 										bot.Send(tgbotapi.NewMessage(follower.ChatID, msg))
 									} else { //ЕСЛИ НЕ НАШЛИ ЧЕЛОВЕКА, КОТОРЫЙ ГОТОВ СОБИРАТЬ ДЕНЬГИ
-										msg := fmt.Sprintf("Завтра день рождения у %s из %s!\nЯ не нашёл никого, кто будет собирать подарки, поэтому просто поздравим словестно!)", nameR, departmentR)
+										msg := fmt.Sprintf("Послезавтра день рождения у %s из %s!\nЯ не нашёл никого, кто будет собирать подарки, поэтому просто поздравим словестно!)", nameR, departmentR)
 										bot.Send(tgbotapi.NewMessage(follower.ChatID, msg))
 									}
 								} else {
-									msg := fmt.Sprintf("Завтра день рождения у %s!\nПодарок собирает %s.\nПринимает переводы по номеру %v\nЕсли захочешь поучаствовать - Укажи комментарий, для кого подарок :)", nameR, myDonator.Name, myDonator.Telephone)
+									msg := fmt.Sprintf("Послезавтра день рождения у %s!\nПодарок собирает %s.\nПринимает переводы по номеру %v\nЕсли захочешь поучаствовать - Укажи комментарий, для кого подарок :)", nameR, myDonator.Name, myDonator.Telephone)
 
 									//https://web3.online.sberbank.ru/transfers/client ССЫЛКА НА ЛК СБЕРА
 									bot.Send(tgbotapi.NewMessage(follower.ChatID, msg))
@@ -261,16 +261,20 @@ func main() {
 			bot.Send(msg)
 
 		case "/REGISTER", "ЗАРЕГИСТРИРОВАТЬСЯ":
-			msg := fmt.Sprintf("Напишите мне сообщение вида: **Регистрация Иван Иванов** (Сперва имя, потом фамилия)")
-			bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, msg))
+			msg := fmt.Sprintf("Напишите мне сообщение вида: *Регистрация Иван Иванов* (Сперва имя, потом фамилия, Слово Регистрация тоже нужно писать :) )")
+			msg1 := tgbotapi.NewMessage(update.Message.Chat.ID, msg)
+			msg1.ParseMode = "Markdown"
+			bot.Send(msg1)
+			fmt.Println(msg1)
 
 		case "/START":
 			text := fmt.Sprintf("Привет! Я помогу тебе поздравлять твоих коллег без десятков надоедливых чатов :)\n" +
-				"Для начала, зарегистрируйся. Напишите примерно так: \nРегистрация Иван Иванов (сначала имя, потом фамилия)\n" +
+				"Для начала, зарегистрируйся. Напишите примерно так: \n*Регистрация Иван Иванов* (сначала имя, потом фамилия, Слово Регистрация тоже нужно писать :) )\n" +
 				"Чтобы узнать что я умею введи Описание\n" +
 				"Хорошего тебе дня!")
 
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+			msg.ParseMode = "Markdown"
 			msg.ReplyMarkup = numericKeyboard
 			bot.Send(msg)
 
